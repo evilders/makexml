@@ -31,5 +31,6 @@ private:
 	CComboBox edit;
 public:
 	afx_msg void OnCbnSelchangeCombo1();
+	//错误提示的关键字
 	CString errorvalu;
 };

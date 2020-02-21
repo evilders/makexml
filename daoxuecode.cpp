@@ -13,7 +13,7 @@ IMPLEMENT_DYNAMIC(daoxuecode, CDialogEx)
 
 daoxuecode::daoxuecode(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_daxouecode, pParent)
-	, dxcode(_T(""))
+	, dxcode(_T("<@2-导学@>"))
 {
 
 }

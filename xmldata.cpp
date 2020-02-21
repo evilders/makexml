@@ -16,7 +16,7 @@ CString begins = _T("begin");
 CString endss = _T("End");
 CString voices = _T("voices");
 CString statgame = _T("Say : <@¡¾ÓÎÏ·¿ªÊ¼¡¿@>");
-string datas = "<?xml version = \"1.0\" encoding = \"GBK\"?>\n<tasks>\n  ";
+string datas = "<?xml version = \"1.0\" encoding = \"gbk\"?>\n<tasks>\n  ";
 double enddistation[2] = { 0.0 , 0.0 };
 int endid=0;
 int errortype = 0;

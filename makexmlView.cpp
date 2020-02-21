@@ -22,6 +22,7 @@
 #include "tips.h"
 #include "daoxuecode.h"
 #include "codeandtime.h"
+#include "sound.h"
 
 
 // CmakexmlView
@@ -144,7 +145,7 @@ void CmakexmlView::OnDraw(CDC* pDC/*pDC*/)
 			enddistation[1] = dat[i].distation[1] + 130;
 		}
 		if (i > 0) {
-			if (dat[i].type==3|| dat[i].type == 4) {
+			if (dat[i].type==3) {
 				MemDC.MoveTo(enddistation[0] - 40, enddistation[1]);
 				MemDC.LineTo(enddistation[0] + 40, enddistation[1]);
 
@@ -163,11 +164,46 @@ void CmakexmlView::OnDraw(CDC* pDC/*pDC*/)
 				MemDC.MoveTo(enddistation[0], enddistation[1] + 60);
 				MemDC.LineTo(enddistation[0] - 5, enddistation[1] + 55);
 				MemDC.MoveTo(enddistation[0] , enddistation[1]+ 60);
-				MemDC.LineTo(enddistation[0] + 5, enddistation[1] + 55);
-
+				MemDC.LineTo(enddistation[0] + 5, enddistation[1] + 55); 
+				
+				
 				enddistation[0] = enddistation[0];
 				enddistation[1] = enddistation[1] + 60;
 			}
+
+			if (dat[i].type == 4) {
+				MemDC.MoveTo(enddistation[0], enddistation[1]);
+				MemDC.LineTo(enddistation[0] + 70, enddistation[1]+35);
+
+				MemDC.MoveTo(enddistation[0] + 70, enddistation[1]+35);
+				MemDC.LineTo(enddistation[0], enddistation[1] + 70);
+
+				MemDC.MoveTo(enddistation[0] , enddistation[1] + 70);
+				MemDC.LineTo(enddistation[0] - 70, enddistation[1] + 35);
+
+				MemDC.MoveTo(enddistation[0] - 70, enddistation[1] + 35);
+				MemDC.LineTo(enddistation[0], enddistation[1]);
+				MemDC.TextOutW((int)enddistation[0] - 50, (int)enddistation[1]+15, dat[i].text);
+				//箭头
+				MemDC.MoveTo(enddistation[0], enddistation[1] + 60);
+				MemDC.LineTo(enddistation[0], enddistation[1] + 100);
+				MemDC.MoveTo(enddistation[0], enddistation[1] + 100);
+				MemDC.LineTo(enddistation[0] - 5, enddistation[1] + 95);
+				MemDC.MoveTo(enddistation[0], enddistation[1] + 100);
+				MemDC.LineTo(enddistation[0] + 5, enddistation[1] + 95);
+				//左超时处理
+				MemDC.MoveTo(enddistation[0]-70, enddistation[1] + 35);
+				MemDC.LineTo(enddistation[0] -200, enddistation[1] + 35);
+				MemDC.TextOutW((int)enddistation[0] - 190, (int)enddistation[1] + 37,_T("错误处理省略"));
+				//错误处理
+				MemDC.MoveTo(enddistation[0]+70, enddistation[1] + 35);
+				MemDC.LineTo(enddistation[0] + 190, enddistation[1] + 35);
+				MemDC.TextOutW((int)enddistation[0] + 90, (int)enddistation[1] + 37, _T("超时处理省略"));
+				enddistation[0] = enddistation[0];
+				enddistation[1] = enddistation[1] + 100;
+			}
+
+
 			if (dat[i].type == 5) {
 				MemDC.MoveTo(enddistation[0]-20, enddistation[1]);
 				MemDC.LineTo(enddistation[0] + 20, enddistation[1]);
@@ -270,8 +306,9 @@ void CmakexmlView::save(){
 		std::ofstream wfs(filepath, std::ios::out);
 		wfs << datas;
 		wfs.close();
+		MessageBox(_T("保存成功："));
 	}
-	MessageBox(_T("保存成功："));
+	
 }
 
 //点击添加开始时代码块
@@ -286,8 +323,8 @@ void CmakexmlView::begin() {
 		if (tip.DoModal() == IDOK) {
 			dat[datleng - 1].tips = tip.Tips;
 		}
-		string s1 = "	<task next=\"2\" type=\"game\" sysType=\"game_begin\" taskParam=\"{&quot;tips&quot;:0}\" id=\"1\"/>\n";
-		string s = "	<task next=\"3\" type=\"game\" sysType=\"game_say\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH_<@2-导学@>_0&quot;,&quot;lang&quot;:0}\" id=\"2\"/>\n";
+		string s1 = "	<task id=\"1\" next=\"2\" id=\"1\" type=\"game\" sysType=\"game_begin\" taskParam=\"{&quot;tips&quot;:0}\"/>\n";
+		string s = "	<task id=\"2\" next=\"3\" type=\"game\" sysType=\"game_say\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH_<@2-导学@>_0&quot;,&quot;lang&quot;:0}\" />\n";
 		datas = datas + s1 + s;
 		id=3;
 		dat[datleng - 1].next = 3;
@@ -361,10 +398,23 @@ void CmakexmlView::click() {
 				string(" sysType=\"game_say\" type=\"game\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH_&lt;@2-未操作提示@ &gt;_0&quot;,&quot;lang&quot;:0}\"  />\n");
 
 			//错误提示音
-			string s4 = "	<task id=\"" + \
-				string(to_string(idfailevoice)) + \
-				string("\" next=\"0\"") + \
-				string(" sysType=\"game_say\" type=\"game\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH_&lt;@2-未操作提示@ &gt;_0&quot;,&quot;lang&quot;:0}\"  />\n");
+			string s4;
+			if (errortype == 0) {
+				s4 = "	<task id=\"" + \
+					string(to_string(idfailevoice)) + \
+					string("\" next=\"0\"") + \
+					string(" sysType=\"game_say\" type=\"game\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH_&lt;@2-未操作提示@ &gt;_0&quot;,&quot;lang&quot;:0}\"  />\n");
+			}
+			else {
+				s4 = "	<task id=\"" + \
+					string(to_string(idfailevoice)) + \
+					string("\" next=\"0\"") + \
+					string(" sysType=\"game_say\" type=\"game\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH_&lt;@")+\
+					string(CT2A(codtim.errorvalu.GetBuffer()))+\
+					string("@ &gt;_0&quot;,&quot;lang&quot;:0}\"  />\n");
+				errortype = 0;
+			}
+			
 
 			datas = datas + s + s1 + s2 + s3 + s4;
 			Invalidate();
@@ -381,7 +431,28 @@ void CmakexmlView::click() {
 void CmakexmlView::voice() {
 
 	if (datleng > 0) {
+		int ids = dat[datleng - 1].next;
+		datleng++;
+		id++;
+		dat[datleng - 1].next = id;
+		sound Sounddog;
+		if (Sounddog.DoModal() == IDOK) {
+			dat[datleng - 1].type = 3;
+			dat[datleng - 1].text = _T("say:");
+			dat[datleng - 1].text = dat[datleng - 1].text + Sounddog.Sound.GetBuffer();
+			string scode = CT2A(Sounddog.Sound.GetBuffer());//码值cod
+			string s = "	<task id=\"" + \
+				string(to_string(id - 1)) + \
+				string("\" next=\"") + \
+				string(to_string(id)) + \
+				string("\" type=\"game\" sysType=\"game_say\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH__0&quot;SH_&lt;") + \
+				scode + \
+				string("&gt;_0&quot;,&quot;lang&quot;:0}\",&quot;lang&quot;:0}\" />\n");
+			datas = datas + s;
+			Invalidate();
+			UpdateData(TRUE);
 
+		}
 	}
 	else
 	{
@@ -402,12 +473,13 @@ void CmakexmlView::voiceth() {
 			dat[datleng - 1].text = _T("say:");
 			dat[datleng - 1].text = dat[datleng - 1].text + daoxuec.dxcode.GetBuffer();
 			string scode = CT2A(daoxuec.dxcode.GetBuffer());//码值cod
-			string s = "	<task next=\""+string(to_string(id))+\
+			string s = "	<task id=\""+\
+				string(to_string(id - 1)) + \
+				string("\" next=\"")+\
+				string(to_string(id))+\
 				string("\" type=\"game\" sysType=\"game_say\" taskParam=\"{&quot;type&quot;:1,&quot;code&quot;:&quot;SH_") + \
 				scode + \
-				string("_0&quot;,&quot;lang&quot;:0}\" id=\"") + \
-				string(to_string(id-1)) + \
-				string("\"/>\n");
+				string("_0&quot;,&quot;lang&quot;:0}\" />\n");
 			datas = datas + s;
 			Invalidate();
 			UpdateData(TRUE);
@@ -427,9 +499,9 @@ void CmakexmlView::end() {
 		datleng++;
 		dat[datleng - 1].type = 5;
 		string s1 = "	<task id=\"0\" sysType=\"game_end\" type=\"game\" taskParam =\"\" next=\"-1\"/>\n";
-		string s2 = "<task id=\""+\
+		string s2 = "	<task id=\""+\
 			string(to_string(id-1))+\
-			string("\" sysType=\"game_end\" type=\"game\" taskParam =\"\" next=\"-1\"/>\n");
+			string("\" sysType=\"game_end\" type=\"game\" taskParam =\"\" next=\"10000\"/>\n");
 		datas = datas + s1 + s2;
 		Invalidate();
 		UpdateData(TRUE);

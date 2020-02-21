@@ -15,9 +15,9 @@ IMPLEMENT_DYNAMIC(codeandtime, CDialogEx)
 codeandtime::codeandtime(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_codandtime, pParent)
 	, Code(0)
-	, Timeout(0)
+	, Timeout(5000)
 	, Skips(0)
-	, errorvalu(_T(""))
+	, errorvalu(_T("2-未操作提示"))
 {
 
 }
